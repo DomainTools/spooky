@@ -1,0 +1,5 @@
+include spookymodule.cpp
+include SpookyV2.cpp
+include SpookyV2.h
+include README.md
+include setup.py
