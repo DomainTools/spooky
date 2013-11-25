@@ -24,6 +24,29 @@ static struct module_state _state;
 #endif
 
 static PyObject *
+spooky_hash128_bytes(PyObject *self, PyObject *args, PyObject *kwargs)
+{
+    const char *message;
+    int message_length;
+    uint64 seed[2] = {0};
+
+    static char *kwlist[] = {(char *)"message", (char *)"seed",
+        NULL};
+
+    if (!PyArg_ParseTupleAndKeywords(args, kwargs, "s#|K", kwlist,
+        &message, &message_length, &seed)) {
+        return NULL;
+    }
+
+    seed[1] = seed[0];
+
+    SpookyHash::Hash128(message, message_length, &seed[0], &seed[1]);
+
+    PyObject *retval = PyBytes_FromStringAndSize((const char *)seed, 16);
+    return retval;
+}
+
+static PyObject *
 spooky_hash128(PyObject *self, PyObject *args, PyObject *kwargs)
 {
     const char *message;
@@ -93,6 +116,9 @@ spooky_hash32(PyObject *self, PyObject *args, PyObject *kwargs)
 }
 
 static PyMethodDef SpookyMethods[] = {
+    {"hash128_bytes", (PyCFunction)spooky_hash128_bytes,
+      METH_VARARGS | METH_KEYWORDS,
+        "Generate a 128bit hash as bytes"},
     {"hash128", (PyCFunction)spooky_hash128,
       METH_VARARGS | METH_KEYWORDS,
         "Generate a 128bit int hash."},
